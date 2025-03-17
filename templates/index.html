@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skin Cancer Detection</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 400px;
+            background: white;
+            padding: 20px;
+            margin: 50px auto;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            color: #333;
+        }
+        button {
+            margin-top: 10px;
+            padding: 10px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        #uploadedImage {
+            width: 100%;
+            margin-top: 20px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Skin Cancer Detection</h2>
+        <input type="file" id="fileInput" accept="image/*">
+        <button onclick="uploadImage()">Upload & Predict</button>
+        <p id="result"></p>
+        <img id="uploadedImage" src="" alt="" style="display: none;">
+    </div>
+
+    <script>
+        function uploadImage() {
+            let fileInput = document.getElementById("fileInput");
+            let resultText = document.getElementById("result");
+            let uploadedImage = document.getElementById("uploadedImage");
+
+            if (fileInput.files.length === 0) {
+                alert("Please select an image first!");
+                return;
+            }
+
+            let file = fileInput.files[0];
+            let formData = new FormData();
+            formData.append("file", file);
+
+            fetch("/predict", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    resultText.innerHTML = "Error: " + data.error;
+                } else {
+                    resultText.innerHTML = "Prediction: " + data.prediction;
+                    uploadedImage.src = URL.createObjectURL(file);
+                    uploadedImage.style.display = "block";
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                resultText.innerHTML = "Error processing the request!";
+            });
+        }
+    </script>
+</body>
+</html>
